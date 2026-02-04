@@ -2,7 +2,7 @@
 const API_URL = (localStorage.getItem("API_URL") || "http://127.0.0.1:8000");
 document.getElementById("apiUrlLabel").textContent = API_URL;
 
-let showConfirmModal = function(message) {
+const showConfirmModal = function(message) {
   return new Promise(resolve => {
     const modal = document.getElementById("confirmModal");
     const messageEl = document.getElementById("confirmMessage");
@@ -39,7 +39,7 @@ let showConfirmModal = function(message) {
     okBtn.addEventListener("click", handleOk);
     document.addEventListener("keydown", handleEscape);
   });
-}
+};
 
 async function api(path, options = {}) {
   const res = await fetch(`${API_URL}${path}`, {
