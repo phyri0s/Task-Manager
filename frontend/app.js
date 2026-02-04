@@ -2,6 +2,46 @@
 const API_URL = (localStorage.getItem("API_URL") || "http://127.0.0.1:8000");
 document.getElementById("apiUrlLabel").textContent = API_URL;
 
+// Modale de confirmation sécurisée
+function showConfirmModal(message) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("confirmModal");
+    const messageEl = document.getElementById("confirmMessage");
+    const cancelBtn = document.getElementById("confirmCancel");
+    const okBtn = document.getElementById("confirmOk");
+
+    messageEl.textContent = message;
+    modal.style.display = "flex";
+
+    const handleCancel = () => {
+      cleanup();
+      resolve(false);
+    };
+
+    const handleOk = () => {
+      cleanup();
+      resolve(true);
+    };
+
+    const cleanup = () => {
+      modal.style.display = "none";
+      cancelBtn.removeEventListener("click", handleCancel);
+      okBtn.removeEventListener("click", handleOk);
+      document.removeEventListener("keydown", handleEscape);
+    };
+
+    const handleEscape = (e) => {
+      if (e.key === "Escape") {
+        handleCancel();
+      }
+    };
+
+    cancelBtn.addEventListener("click", handleCancel);
+    okBtn.addEventListener("click", handleOk);
+    document.addEventListener("keydown", handleEscape);
+  });
+}
+
 async function api(path, options = {}) {
   const res = await fetch(`${API_URL}${path}`, {
     headers: { "Content-Type": "application/json" },
@@ -45,7 +85,8 @@ function taskCard(task) {
   });
 
   div.querySelector('[data-role="delete"]').addEventListener("click", async () => {
-    if (!window.confirm("Supprimer cette tâche ?")) {
+    const confirmed = await showConfirmModal("Supprimer cette tâche ?");
+    if (!confirmed) {
       return;
     }
     await api(`/tasks/${task.id}`, { method: "DELETE" });
