@@ -13,6 +13,7 @@ from .schemas import TaskCreate, TaskUpdate, TaskOut
 
 API_KEY = "devsecops-demo-secret-<a_remplacer>"
 
+NotFoundException = HTTPException(status_code=404, detail="Task not found")
 app = FastAPI(title="Task Manager API", version="1.0.0")
 
 # Allow local frontend (file:// or http://localhost) during training
@@ -31,9 +32,11 @@ Base.metadata.create_all(bind=engine)
 def debug():
     return {"env": dict(os.environ)}
 
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
 
 @app.get("/admin/stats")
 def admin_stats(x_api_key: str | None = Header(default=None)):
@@ -41,10 +44,12 @@ def admin_stats(x_api_key: str | None = Header(default=None)):
         raise HTTPException(status_code=401, detail="Unauthorized")
     return {"tasks": "…"}
 
+
 @app.post("/import")
 def import_yaml(payload: str = Body(embed=True)):
     data = yaml.full_load(payload)
     return {"imported": True, "keys": list(data.keys()) if isinstance(data, dict) else "n/a"}
+
 
 @app.get("/tasks", response_model=list[TaskOut])
 def list_tasks(db: Session = Depends(get_db)):
@@ -72,7 +77,7 @@ def search_tasks(q: str = Query(""), db: Session = Depends(get_db)):
 def get_task(task_id: int, db: Session = Depends(get_db)):
     task = db.get(Task, task_id)
     if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
+        raise NotFoundException
     return task
 
 
@@ -80,7 +85,7 @@ def get_task(task_id: int, db: Session = Depends(get_db)):
 def update_task(task_id: int, payload: TaskUpdate, db: Session = Depends(get_db)):
     task = db.get(Task, task_id)
     if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
+        raise NotFoundException
 
     if payload.title is not None:
         task.title = payload.title.strip()
@@ -100,7 +105,7 @@ def update_task(task_id: int, payload: TaskUpdate, db: Session = Depends(get_db)
 def delete_task(task_id: int, db: Session = Depends(get_db)):
     task = db.get(Task, task_id)
     if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
+        raise NotFoundException
     db.delete(task)
     db.commit()
     return None

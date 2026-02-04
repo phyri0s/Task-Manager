@@ -7,7 +7,9 @@ async function api(path, options = {}) {
     headers: { "Content-Type": "application/json" },
     ...options,
   });
-  if (res.status === 204) return null;
+  if (res.status === 204) {
+    return null;
+  }
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.detail || `HTTP ${res.status}`);
@@ -43,7 +45,9 @@ function taskCard(task) {
   });
 
   div.querySelector('[data-role="delete"]').addEventListener("click", async () => {
-    if (!confirm("Supprimer cette tâche ?")) return;
+    if (!confirm("Supprimer cette tâche ?")) {
+      return;
+    }
     await api(`/tasks/${task.id}`, { method: "DELETE" });
     await refresh();
   });
