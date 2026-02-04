@@ -1,14 +1,14 @@
 FROM python:3.12
 
-RUN pip install --upgrade pip setuptools wheel
+RUN pip install --upgrade pip setuptools
+
+RUN useradd -m taskUser
+USER taskUser
 
 WORKDIR /app
 COPY . /app/
 
 RUN pip install --no-cache-dir -r requirements.txt
-
-RUN useradd -m taskUser && chown -R taskUser:taskUser /app
-USER taskUser
 
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD curl -f http://localhost/health || exit 1
 
