@@ -1,8 +1,7 @@
 FROM python:3.12
 
-RUN pip install --upgrade pip setuptools
-
-RUN useradd -m taskUser
+RUN pip install --no-cache-dir --upgrade pip==24.0 setuptools==69.0.0 && \
+    useradd -m taskUser
 USER taskUser
 
 WORKDIR /app
