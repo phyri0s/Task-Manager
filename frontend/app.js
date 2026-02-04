@@ -2,16 +2,15 @@
 const API_URL = (localStorage.getItem("API_URL") || "http://127.0.0.1:8000");
 document.getElementById("apiUrlLabel").textContent = API_URL;
 
-// Modale de confirmation sécurisée
-function showConfirmModal(message) {
-  return new Promise((resolve) => {
+let showConfirmModal = function(message) {
+  return new Promise(resolve => {
     const modal = document.getElementById("confirmModal");
     const messageEl = document.getElementById("confirmMessage");
     const cancelBtn = document.getElementById("confirmCancel");
     const okBtn = document.getElementById("confirmOk");
 
     messageEl.textContent = message;
-    modal.style.display = "flex";
+    modal.classList.remove("hidden");
 
     const handleCancel = () => {
       cleanup();
@@ -24,13 +23,13 @@ function showConfirmModal(message) {
     };
 
     const cleanup = () => {
-      modal.style.display = "none";
+      modal.classList.add("hidden");
       cancelBtn.removeEventListener("click", handleCancel);
       okBtn.removeEventListener("click", handleOk);
       document.removeEventListener("keydown", handleEscape);
     };
 
-    const handleEscape = (e) => {
+    const handleEscape = e => {
       if (e.key === "Escape") {
         handleCancel();
       }
